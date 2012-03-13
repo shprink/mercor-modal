@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Mercor Alert - Demo</title>
+<script type="text/javascript" src="js/mootools-core-1.4.1-full-nocompat.js"></script>
+<script type="text/javascript" src="js/mootools-more-1.4.0.1.js"></script>
+<link rel="stylesheet" href="css/mercor-modal.css" type="text/css" media="screen">
+<script src="js/mercor-modal.js" type="text/javascript"></script>
+<script type="text/javascript">
+			
+			window.addEvent('domready',function(){
+				
+				$$('.alertSuccess').addEvent('click',function(e){
+					var alert = new MercorModal;
+					alert.open({
+						'title': 'Praesent bibendum',
+						'text': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent bibendum, justo sit.',
+						'type': 'success' // notice, error, success
+					});
+					e.stop();
+				});
+			});
+			
+			
+		</script>
+<style type="text/css">
+body {
+  font-size: 85%;
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.container{
+	margin-left: auto;
+    margin-right: auto;
+    width: 940px;
+}
+table         { margin: 10px; width:100%;}
+thead th      { background: #333; color:#fff; font-weight: bold;}
+tbody tr:nth-child(even) td{
+  background: #ccc;
+}
+tbody tr:nth-child(odd) td{
+  background: #fff;
+}
+</style>
+</head>
+<body>
+	<div class="container">
+		<section id="description">
+		<div class="page-header">
+			<h1>
+				Alert <small>Provides hints to users!</small>
+			</h1>
+		</div>
+		<p>
+			Alert is a <a href="http://mootools.net/" target="_blank">Mootools</a>
+			based Class that allows you to display different type of alerts to
+			users.
+		</p>
+		<p>This Class is highly customizable. Change, the size, the
+			position, the style and even the template of you alerts.</p>
+		<p>All the options are detailed beside.</p>
+		<p>
+			<a target="_blank" href="https://github.com/shprink/mercor-alert" class="btn btn-primary btn-large">Fork me on GitHub</a>
+			<a href="https://github.com/shprink/mercor-alert/zipball/master" class="btn btn-large">Download</a>
+		</p>
+		</section>
+		<section id="alert">
+		<h2>Demos</h2>
+		<h3>
+			Success
+			<button href="#" class="btn alertSuccess">Demo</button>
+		</h3>
+		<div>
+			<pre><code>$$('.alertSuccess').addEvent('click',function(e){
+	var alert = new MercorAlert;
+	alert.open({
+		'title': 'Praesent bibendum',
+		'text': 'Lorem ipsum dolor sit amet, consectetur elit...',
+		'type': 'success' // notice, error, success
+	});
+	e.stop();
+});</code>
+			</pre>
+		</div>
+		</section>
+		<section id="demo">
+		<h3>
+			Method: Constructor
+			<code>var alert = new MercorAlert([options]);</code>
+		</h3>
+		<h4 class="expand-link">
+			<i class="icon-plus"></i>Options
+		</h4>
+		<table class="table table-bordered table-striped expand-content">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>type</th>
+					<th>default</th>
+					<th>description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>container.id</td>
+					<td>String</td>
+					<td>mercor-alert-container</td>
+					<td>The container id</td>
+				</tr>
+				<tr>
+					<td>container.el</td>
+					<td>Object</td>
+					<td>document.body</td>
+					<td>The element Object in which to inject the Alert container.</td>
+				</tr>
+				<tr>
+					<td>container.position</td>
+					<td>String</td>
+					<td>top-right</td>
+					<td>Container position. Can be 'top-right', top-left',
+						'bottom-right', 'bottom-left'</td>
+				</tr>
+				<tr>
+					<td>node.id</td>
+					<td>String</td>
+					<td>mercor-alert</td>
+					<td>The node id</td>
+				</tr>
+				<tr>
+					<td>node.delay</td>
+					<td>Number</td>
+					<td>5000</td>
+					<td>The duration of the node in ms.</td>
+				</tr>
+				<tr>
+					<td>node.width</td>
+					<td>Number</td>
+					<td>300</td>
+					<td>The node width.</td>
+				</tr>
+				<tr>
+					<td>node.opacity</td>
+					<td>Decimal [0,1]</td>
+					<td>0.9</td>
+					<td>The node maximum opacity.</td>
+				</tr>
+				<tr>
+					<td>node.template</td>
+					<td>String</td>
+					<td colspan="2"><pre class="prettyprint linenums">&lt;div class=&quot;mercor-inner&quot;&gt;
+&lt;div class=&quot;mercor-close&quot; title=&quot;Close&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;mercor-title&quot;&gt;{TITLE}&lt;/div&gt;
+&lt;div class=&quot;mercor-text&quot;&gt;{TEXT}&lt;/div&gt;
+&lt;/div&gt;</pre></td>
+				</tr>
+			</tbody>
+		</table>
+		<h3>
+			Method: open
+			<code>alert.open([options]);</code>
+		</h3>
+		<h4 class="expand-link">
+			<i class="icon-plus"></i>Options
+		</h4>
+		<table class="table table-bordered table-striped expand-content">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>type</th>
+					<th>default</th>
+					<th>description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>text</td>
+					<td>String (optional)</td>
+					<td></td>
+					<td>The node Title</td>
+				</tr>
+				<tr>
+					<td>title</td>
+					<td>String (optional)</td>
+					<td></td>
+					<td>The node Text</td>
+				</tr>
+				<tr>
+					<td>type</td>
+					<td>String</td>
+					<td>success</td>
+					<td>Define the node style. Can be 'success', 'notice', 'error'</td>
+				</tr>
+			</tbody>
+		</table>
+		<h3>
+			Method: Close
+			<code>alert.close();</code>
+		</h3>
+		</section>
+		<footer class="footer">
+	        <p>Created by <a href="http://twitter.com/julienrenaux" target="_blank">@julienrenaux</a></p>
+	        <p>Code licensed under <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT License</a></p>
+	        <p>More info: <a href="http://mercor.julienrenaux.fr/library.html" target="_blank">http://mercor.julienrenaux.fr/library.html</a></p>
+	    </footer>
+		
+		
+	</div>
+	
+</body>
+</html>
