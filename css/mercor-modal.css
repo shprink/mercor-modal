@@ -43,6 +43,9 @@ SOFTWARE.
 }
 
 #mercor-modal{
+	position:relative;
+	margin:0 auto;
+	border: 1px solid #FFF;
 	background-color: white;
 	color:#000;
 	display:block;
@@ -88,27 +91,41 @@ SOFTWARE.
     line-height: 1.25;
     text-transform: capitalize;
     font-weight: bold;
+    height: 20px;
 }
 
 #mercor-modal .mercor-body{
 	font-size: 13px;
+	background-color: black;
+	overflow: hidden;
+	display: block;
+    position:absolute;
+    height:auto;
+    bottom:0;
+    top:0;
+    left:0;
+    right:0;
+    margin:40px 5px 5px 5px;
 }
 
 #mercor-modal .mercor-footer{
-	-moz-border-radius: 0px 0px 5px 5px;
-	-webkit-border-radius: 0px 0px 5px 5px;
-	border-radius: 0px 0px 5px 5px;
 	padding: 5px;
 	border-top: 1px solid #CCC;
 	margin-top: 5px;
+	height: 30px;
+	display: block;
+	position:absolute;
+	bottom:0;
+	 left:5px;
+    right:5px;
 }
 
 #mercor-modal .mercor-close{
 	width: 16px;
 	height: 16px;
 	position: absolute;
-	top: 5px;
-	right: 5px;
+	top: 13px;
+	right: 13px;
 	background-image: url("../img/close.png"); /* http://www.gentleface.com */
 	opacity: 0.5;
 	cursor: pointer;
@@ -117,9 +134,7 @@ SOFTWARE.
 	opacity: 1;
 }
 #mercor-modal .mercor-inner{
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
+	
 	padding: 5px;
-	border: 1px solid #FFF;
+	
 }

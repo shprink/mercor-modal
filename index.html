@@ -11,13 +11,18 @@
 			
 			window.addEvent('domready',function(){
 				
-				$$('.alertSuccess').addEvent('click',function(e){
-					var alert = new MercorModal;
-					alert.open({
-						'title': 'Praesent bibendum',
-						'text': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent bibendum, justo sit.',
-						'type': 'success' // notice, error, success
+				$('modal').addEvent('click',function(e){
+					var modal = new MercorModal;
+					modal.open();
+					e.stop();
+				});
+				
+				$('modal-footer').addEvent('click',function(e){
+					var modal = new MercorModal;
+					modal.addButton('button','Close','', '', function(){
+						modal.close();
 					});
+					modal.open();
 					e.stop();
 				});
 			});
@@ -45,6 +50,8 @@ tbody tr:nth-child(odd) td{
 </style>
 </head>
 <body>
+<button id="modal" href="#" class="btn alertSuccess">Demo</button>
+<button id="modal-footer" href="#" class="btn alertSuccess">Demo</button>
 	<div class="container">
 		<section id="description">
 		<div class="page-header">

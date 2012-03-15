@@ -36,7 +36,6 @@ var MercorModal = new Class({
 			+'<div class="mercor-body"></div>'
 			+'<div class="mercor-footer"></div>'
 		+'</div>',
-		buttons : [],
 		keys: {
 			esc: function() { this.close(); }
 		},
@@ -47,6 +46,7 @@ var MercorModal = new Class({
 	 * The Close button element
 	 */
 	buttonClose: null,
+	buttons : [],
 
 	initialize: function(options){
 		// set the options
@@ -55,6 +55,8 @@ var MercorModal = new Class({
 		this._injectContainer();
 		// Inject the overlay to the document
 		this._injectOverlay();
+
+		this.screen = document.body.getSize();
 	},
 
 	_injectContainer: function(){
@@ -88,6 +90,10 @@ var MercorModal = new Class({
 			o.close();
 			event.stop();
 		});
+		this.keyEvent = function(e){
+			if(this.options.keys[e.key]) this.options.keys[e.key].call(this);
+			}.bind(this);
+			this.node.addEvent('keyup',this.keyEvent);
 	},
 
 	_injectNode: function(options){
@@ -97,11 +103,11 @@ var MercorModal = new Class({
 			'html': template.replace('{TITLE}', this.options.title),
 			'styles' : this.options.style
 		});
-		//this.node.setStyle('width', this.options.width);
-		//this.node.setStyle('opacity', 0);
 		this.node.inject(this.container);
-		var screen = document.body.getSize();
-
+		this._setSizes();
+	},
+	
+	_setSizes: function(){
 		var myFx = new Fx.Tween(this.node, {
 		    duration: 'short',
 		    transition: 'linear',
@@ -109,21 +115,25 @@ var MercorModal = new Class({
 		});
 		
 		this.node.setStyles({
-			left : (screen.x - this.options.style.width) / 2
+			left : (this.screen.x - this.options.style.width) / 2
 		});
 		
-		myFx.start(-9999, ((screen.y - this.options.style.height) / 2));
-		
-		
-		/*
-		*/
-		
+		myFx.start(-9999, ((this.screen.y - this.options.style.height) / 2));
 	},
 	
 	_load: function(){
 		var text = this.options.text;
 		this.body.set('html',text);
 	},
+	
+	_loadButtons : function() {	
+		
+			this.buttons.each(function(el) {
+				el.inject(this.footer);
+			}.bind(this));
+			
+			return;
+		},
 
 	open: function(options){
 		this.overlay.show();
@@ -135,19 +145,46 @@ var MercorModal = new Class({
 		// Get the button close element
 		this.buttonClose = this.node.getElement('.mercor-close');
 		
-		// Get the button close element
+		// Get the body element
 		this.body = this.node.getElement('.mercor-body');
 		
+		// Get the footer element
+		this.footer = this.node.getElement('.mercor-footer');
+		
+		
+
+		if (this.buttons.length > 0)
+		{
+			this.body.setStyle('margin-bottom', 46);
+			this._loadButtons();
+		}
+		else
+		{
+			this.footer.destroy();
+			this.body.setStyle('margin-bottom', 5);
+		}
+		
 		this._load();
-		// Get the button close element
-		//this.buttonClose = this.node.getElement('.mercor-close');
+		
+		
 		// Add events
 		this._addEvents();
 	},
 
-	close: function(){
-		var screen = document.body.getSize();
+	addButton : function(el, text, id, classe, clickEvent) {
+		var button = new Element(el, {
+			"html" : text,
+			"class" : classe,
+			"events" : {
+				click : clickEvent
+			}
+		});
 
+		this.buttons.push(button);
+		return button;
+	},
+
+	close: function(){
 		var myFx = new Fx.Tween(this.node, {
 		    duration: 'short',
 		    transition: 'linear',
@@ -158,7 +195,7 @@ var MercorModal = new Class({
 				this.node.destroy();
 			}.bind(this)
 		});
-		myFx.start(((screen.y - this.options.style.height) / 2), 9999);
+		myFx.start(((this.screen.y - this.options.style.height) / 2), 9999);
 	}
 });
 
