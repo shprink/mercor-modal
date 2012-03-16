@@ -12,7 +12,9 @@
 			window.addEvent('domready',function(){
 				
 				$('modal').addEvent('click',function(e){
-					var modal = new MercorModal;
+					var modal = new MercorModal({
+						'trigger': this
+					});
 					modal.open();
 					e.stop();
 				});
@@ -21,6 +23,34 @@
 					var modal = new MercorModal;
 					modal.addButton('button','Close','', '', function(){
 						modal.close();
+					});
+					modal.open();
+					e.stop();
+				});
+				
+				$('modal-fullscreen').addEvent('click',function(e){
+					var modal = new MercorModal({
+						'fullScreen': {
+							'active': 1
+						},
+						'draggable' : 0,
+						'onOpen': function(){
+							alert('open');
+						}
+					});
+					modal.open();
+					e.stop();
+				});
+				$('modal-tiny').addEvent('click',function(e){
+					var modal = new MercorModal({
+						'styles': {
+							'width' : 400,
+							'height' : 200
+						},
+						'draggable' : 0,
+						'onClose': function(){
+							alert('test');
+						}
 					});
 					modal.open();
 					e.stop();
@@ -50,8 +80,10 @@ tbody tr:nth-child(odd) td{
 </style>
 </head>
 <body>
-<button id="modal" href="#" class="btn alertSuccess">Demo</button>
-<button id="modal-footer" href="#" class="btn alertSuccess">Demo</button>
+<button id="modal" modal-style="{'width' : 800,'height' : 200}" href="#" class="btn alertSuccess">Demo</button>
+<button id="modal-footer" href="#" class="btn alertSuccess">Footer</button>
+<button id="modal-fullscreen" href="#" class="btn alertSuccess">FullScreen</button>
+<button id="modal-tiny" href="#" class="btn alertSuccess">Tiny</button>
 	<div class="container">
 		<section id="description">
 		<div class="page-header">

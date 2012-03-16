@@ -10,7 +10,7 @@ var MercorModal = new Class({
 		'overlay': {
 			'id': 'mercor-modal-overlay',
 			'el': '',
-			'style': {
+			'styles': {
 				'position': 'absolute',
 				'opacity': 0.6,
 				'filter': 'alpha(opacity = 90)',
@@ -19,15 +19,37 @@ var MercorModal = new Class({
 				'background': '#000'
 			}
 		},
+		'footer': {
+			'style': {
+				'text-align': 'right'
+			}
+		},
+		'fade': {
+			'duration': 'short',
+		    'transition': 'linear'
+		},
 		'id': 'mercor-modal',
-		'style': {
+		'styles': {
 			'width' : 800,
 			'height' : 500,
 			'z-index' : 1000,
-			position : 'fixed'
+			'position' : 'fixed',
+			'opacity': 0
 		},
-		'duration': 'short',
-	    'transition': 'linear',
+		'fullScreen': {
+			'active': 0,
+			'styles': {
+				'width' : null,
+				'height' : null,
+				'bottom' : 5,
+				'left' : 5,
+				'right' : 5,
+				'top': 5,
+				'opacity': 0
+			}
+		},
+		'trigger': null,
+		'draggable': 1,
 		'text' : 'No data',
 		'title': 'No title',
 		'template':	'<div class="mercor-inner">'
@@ -39,24 +61,24 @@ var MercorModal = new Class({
 		keys: {
 			esc: function() { this.close(); }
 		},
-		fullScreen: 0
+		onOpen: null,
+		onClose: null,
+		onFadeIn: null,
+		onFadeOut: null,
+		onRequest: null,
+		onFailure: null,
+		onSuccess: null,
+		onComplete: null,
 	},
-	
-	/**
-	 * The Close button element
-	 */
-	buttonClose: null,
 	buttons : [],
 
 	initialize: function(options){
-		// set the options
 		this.setOptions(options);
-		// Inject the container to the document
 		this._injectContainer();
-		// Inject the overlay to the document
 		this._injectOverlay();
-
 		this.screen = document.body.getSize();
+		this.top = (this.screen.y - this.options.styles.height) / 2;
+		this.left = (this.screen.x - this.options.styles.width) / 2;		
 	},
 
 	_injectContainer: function(){
@@ -73,102 +95,134 @@ var MercorModal = new Class({
 		if(this.overlay) return;
 		this.overlay = new Mask(this.options.overlay.el,{
 			id: this.options.overlay.id,
-			style: this.options.overlay.style
+			style: this.options.overlay.styles
 		});
+	},
+	
+	_drag: function(){
+		new Drag(this.node,{
+			'handle': this.header
+		});
+		this.header.setStyle('cursor','move');
 	},
 	
 	_addEvents: function()
 	{
-		this.overlay.addEvent('click', function(event) {
-			this.close();
-			event.stop();
-		}.bind(this));
-		
 		var o = this;
-		// Add the delete event
+		this.overlay.addEvent('click', function(event) {
+			o.close();
+			event.stop();
+		});
 		this.buttonClose.addEvent('click',function(event){
 			o.close();
 			event.stop();
 		});
+		/*
 		this.keyEvent = function(e){
 			if(this.options.keys[e.key]) this.options.keys[e.key].call(this);
 			}.bind(this);
-			this.node.addEvent('keyup',this.keyEvent);
+		this.node.addEvent('keyup',this.keyEvent);
+		
+		this.resizeEvent = this.options.constrain ? function(e) {
+			this._resize();
+			}.bind(this) : function() {
+			this._position();
+			}.bind(this);
+			window.addEvent('resize',this.resizeEvent);
+		*/
 	},
 
-	_injectNode: function(options){
+	_injectNode: function(){
+		if (this.options.trigger){
+			var style = JSON.decode(this.options.trigger.get('modal-style'));
+		}
+		var style = (style && typeOf(style) == 'object')? Object.merge(this.options.styles, style):this.options.styles;
 		var template = this.options.template;
 		this.node = new Element('div',{
 			'id': this.options.id,
 			'html': template.replace('{TITLE}', this.options.title),
-			'styles' : this.options.style
+			'styles' : style
 		});
-		this.node.inject(this.container);
+		this.node.inject(this.container);	
+	},
+	
+	_setupNode: function(){
+		this.buttonClose = this.node.getElement('.mercor-close');
+		this.header = this.node.getElement('.mercor-header');
+		this.body = this.node.getElement('.mercor-body');
+		this.footer = this.node.getElement('.mercor-footer');
+		this.footer.setStyles(this.footer.style);	
+		if (this.options.draggable) this._drag();
+
+		if (this.buttons.length > 0){
+			this.body.setStyle('margin-bottom', 46);
+			this._loadButtons();
+		}
+		else{
+			this.footer.destroy();
+			this.body.setStyle('margin-bottom', 5);
+		}
+		this.fade = new Fx.Morph(this.node, {
+			duration: this.options.fade.duration,
+			transition: this.options.fade.transition
+		});
 		this._setSizes();
 	},
 	
 	_setSizes: function(){
-		var myFx = new Fx.Tween(this.node, {
-		    duration: 'short',
-		    transition: 'linear',
-		    property: 'top'
-		});
 		
-		this.node.setStyles({
-			left : (this.screen.x - this.options.style.width) / 2
-		});
-		
-		myFx.start(-9999, ((this.screen.y - this.options.style.height) / 2));
+		if (this.options.fullScreen.active){
+			this.node.setStyles(this.options.fullScreen.styles);
+			this._fadeInFullScreen();
+		}
+		else{
+			this.node.setStyles({
+				left : this.left
+			});
+			this._fadeIn();
+		}
 	},
 	
+	_fadeIn: function(){	
+		this.fade.start({
+		    'opacity': [0, 1],
+		    'top': [this.top -50, this.top]
+		});
+		this.fireEvent('fadeIn');
+	},
+	
+	_fadeInFullScreen: function(){	
+		this.fade.start({
+		    'opacity': [0, 1]
+		});
+		this.fireEvent('fadeIn');
+	},
+	
+	_fadeOut: function(){	
+		this.fade.start({
+		    'opacity': [1,0],
+		    'top': [this.top, this.top + 50]
+		});
+		this.fireEvent('fadeOut');
+	},
+
+	_fadeOutFullScreen: function(){	
+		this.fade.start({
+		    'opacity': [1,0]
+		});
+		this.fireEvent('fadeOut');
+	},
+
 	_load: function(){
 		var text = this.options.text;
 		this.body.set('html',text);
 	},
 	
 	_loadButtons : function() {	
-		
-			this.buttons.each(function(el) {
-				el.inject(this.footer);
-			}.bind(this));
-			
-			return;
-		},
-
-	open: function(options){
-		this.overlay.show();
-		// Set the container position
-		//this.container.set('class',this.options.container.position);
-		// Inject the node
-		this._injectNode(options);
-		
-		// Get the button close element
-		this.buttonClose = this.node.getElement('.mercor-close');
-		
-		// Get the body element
-		this.body = this.node.getElement('.mercor-body');
-		
-		// Get the footer element
-		this.footer = this.node.getElement('.mercor-footer');
-		
-		
-
-		if (this.buttons.length > 0)
-		{
-			this.body.setStyle('margin-bottom', 46);
-			this._loadButtons();
-		}
-		else
-		{
-			this.footer.destroy();
-			this.body.setStyle('margin-bottom', 5);
-		}
-		
-		this._load();
-		
-		
-		// Add events
-		this._addEvents();
+		this.buttons.each(function(el) {
+			el.inject(this.footer);
+		}.bind(this));
+		return;
 	},
 
 	addButton : function(el, text, id, classe, clickEvent) {
@@ -179,23 +233,40 @@ var MercorModal = new Class({
 				click : clickEvent
 			}
 		});
-
 		this.buttons.push(button);
 		return button;
 	},
+		
+	open: function(){
+		this.node = $(this.options.id);
+		if(this.node) return;
+		this.overlay.show();
+		this._injectNode();
+		this._setupNode();
+		this._addEvents();
+		this._load();
+		this.fireEvent('open');
+	},
 
 	close: function(){
-		var myFx = new Fx.Tween(this.node, {
-		    duration: 'short',
-		    transition: 'linear',
-		    property: 'top',
-		    onChainComplete : function(){
+		if (this.fade)
+		{
+			this.fade.addEvent('onChainComplete',function(){
 		    	this.overlay.hide();
 				if(!this.node) return;
 				this.node.destroy();
-			}.bind(this)
-		});
-		myFx.start(((this.screen.y - this.options.style.height) / 2), 9999);
+			}.bind(this));
+
+			if (this.options.fullScreen.active)
+			{
+				this._fadeOutFullScreen();
+			}
+			else
+			{
+				this._fadeOut();
+			}
+		}
+		this.fireEvent('close');
 	}
 });
 
