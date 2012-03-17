@@ -107,6 +107,10 @@ SOFTWARE.
     margin:40px 5px 5px 5px;
 }
 
+#mercor-modal .mercor-body p{
+	margin-top: 0; 
+}	
+
 #mercor-modal .mercor-footer{
 	padding: 5px;
 	border-top: 1px solid #CCC;

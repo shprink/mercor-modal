@@ -24,7 +24,8 @@
 					modal.addButton('button','Close','', '', function(){
 						modal.close();
 					});
-					modal.open();
+					modal.open('This is my Mother Fucking Modal',
+							'<p>This me looooong text	</p>');
 					e.stop();
 				});
 				
@@ -33,10 +34,7 @@
 						'fullScreen': {
 							'active': 1
 						},
-						'draggable' : 0,
-						'onOpen': function(){
-							alert('open');
-						}
+						'draggable' : 0
 					});
 					modal.open();
 					e.stop();
@@ -48,11 +46,32 @@
 							'height' : 200
 						},
 						'draggable' : 0,
-						'onClose': function(){
-							alert('test');
-						}
+						'overlay': {
+							'styles': {
+								'background': 'red'
+							}
+						},
 					});
 					modal.open();
+					e.stop();
+				});
+				$('modal-iframe').addEvent('click',function(e){
+					var modal = new MercorModal.Iframe({
+						'draggable' : 1,
+						//'onComplete': function(){alert('loaded')}
+					});
+					modal.open('', 'http://google.com');
+					e.stop();
+				});
+				
+				$('modal-iframe-fullscreen').addEvent('click',function(e){
+					var modal = new MercorModal.Iframe({
+						'fullScreen': {
+							'active': 1
+						},
+						'draggable' : 0
+					});
+					modal.open('', '');
 					e.stop();
 				});
 			});
@@ -80,10 +99,17 @@ tbody tr:nth-child(odd) td{
 </style>
 </head>
 <body>
-<button id="modal" modal-style="{'width' : 800,'height' : 200}" href="#" class="btn alertSuccess">Demo</button>
-<button id="modal-footer" href="#" class="btn alertSuccess">Footer</button>
-<button id="modal-fullscreen" href="#" class="btn alertSuccess">FullScreen</button>
-<button id="modal-tiny" href="#" class="btn alertSuccess">Tiny</button>
+<button id="modal" modal-style="{'width' : 200,'height' : 200}" href="#" class="btn">Style define in link</button>
+<button id="modal-footer" href="#" class="btn ">Footer with buttons</button>
+<button id="modal-fullscreen" href="#" class="btn ">FullScreen</button>
+<button id="modal-tiny" href="#" class="btn ">Tiny</button>
+<br/><br/>
+<button id="modal-iframe" href="#" class="btn ">Iframe</button>
+<button id="modal-iframe-fullscreen" href="#" class="btn ">Iframe FullScreen</button>
+<button id="modal-confirm" href="#" class="btn ">Confirm</button>
+<button id="modal-request" href="#" class="btn ">Request</button>
+<button id="modal-image" href="#" class="btn ">Image</button>
+<button id="modal-slideshow" href="#" class="btn ">Slideshow</button>
 	<div class="container">
 		<section id="description">
 		<div class="page-header">

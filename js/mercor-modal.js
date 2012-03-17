@@ -39,27 +39,13 @@ var MercorModal = new Class({
 		'fullScreen': {
 			'active': 0,
 			'styles': {
-				'width' : null,
-				'height' : null,
-				'bottom' : 5,
-				'left' : 5,
-				'right' : 5,
-				'top': 5,
-				'opacity': 0
-			}
-		},
-		'trigger': null,
-		'draggable': 1,
-		'text' : 'No data',
-		'title': 'No title',
-		'template':	'<div class="mercor-inner">'
-			+'<div class="mercor-close" title="Close"></div>'
-			+'<div class="mercor-header">{TITLE}</div>'
-			+'<div class="mercor-body"></div>'
-			+'<div class="mercor-footer"></div>'
-		+'</div>',
-		keys: {
-			esc: function() { this.close(); }
+			'width' : null,
+			'height' : null,
+			'bottom' : 5,
+			'left' : 5,
+			'right' : 5,
+			'top': 5,
+			'opacity': 0
 		},
 		onOpen: null,
 		onClose: null,
@@ -68,7 +54,21 @@ var MercorModal = new Class({
 		onRequest: null,
 		onFailure: null,
 		onSuccess: null,
-		onComplete: null,
+		onComplete: null
+		},
+		'trigger': null,
+		'draggable': 1,
+		'html' : 'Empty',
+		'title': 'Mercor Modal',
+		'template':	'<div class="mercor-inner">'
+			+'<div class="mercor-close" title="Close"></div>'
+			+'<div class="mercor-header"></div>'
+			+'<div class="mercor-body"></div>'
+			+'<div class="mercor-footer"></div>'
+		+'</div>',
+		keys: {
+			esc: function() { this.close(); }
+		}
 	},
 	buttons : [],
 
@@ -77,13 +77,15 @@ var MercorModal = new Class({
 		this._injectContainer();
 		this._injectOverlay();
 		this.screen = document.body.getSize();
+		if (this.options.trigger){
+			var style = JSON.decode(this.options.trigger.get('modal-style'));
+		}
+		this.options.styles = (style && typeOf(style) == 'object')? Object.merge(this.options.styles, style):this.options.styles;
 		this.top = (this.screen.y - this.options.styles.height) / 2;
-		this.left = (this.screen.x - this.options.styles.width) / 2;		
+		this.left = (this.screen.x - this.options.styles.width) / 2;
 	},
 
 	_injectContainer: function(){
-		this.container = $(this.options.container.id);
-		if(this.container) return;
 		this.container = new Element('div',{
 			'id': this.options.container.id,
 			'class': this.options.container.position
@@ -91,8 +93,6 @@ var MercorModal = new Class({
 	},
 	
 	_injectOverlay: function(){
-		this.overlay = $(this.options.overlay.id);
-		if(this.overlay) return;
 		this.overlay = new Mask(this.options.overlay.el,{
 			id: this.options.overlay.id,
 			style: this.options.overlay.styles
@@ -123,6 +123,13 @@ var MercorModal = new Class({
 			}.bind(this);
 		this.node.addEvent('keyup',this.keyEvent);
 		
+		$('myLink').addEvent('keydown', function(event){
+    // the passed event parameter is already an instance of the Event type.
+    alert(event.key);   // returns the lowercase letter pressed.
+    alert(event.shift); // returns true if the key pressed is shift.
+    if (event.key == 's' && event.control) alert('Document saved.'); //executes if the user presses Ctr+S.
+});
+		
 		this.resizeEvent = this.options.constrain ? function(e) {
 			this._resize();
 			}.bind(this) : function() {
@@ -133,15 +140,10 @@ var MercorModal = new Class({
 	},
 
 	_injectNode: function(){
-		if (this.options.trigger){
-			var style = JSON.decode(this.options.trigger.get('modal-style'));
-		}
-		var style = (style && typeOf(style) == 'object')? Object.merge(this.options.styles, style):this.options.styles;
-		var template = this.options.template;
 		this.node = new Element('div',{
 			'id': this.options.id,
-			'html': template.replace('{TITLE}', this.options.title),
-			'styles' : style
+			'html': this.options.template,
+			'styles' : this.options.styles
 		});
 		this.node.inject(this.container);	
 	},
@@ -213,9 +215,9 @@ var MercorModal = new Class({
 		this.fireEvent('fadeOut');
 	},
 
-	_load: function(){
-		var text = this.options.text;
-		this.body.set('html',text);
+	_load: function(title, html){
+		this.header.set('html',(title || this.options.title));
+		this.body.set('html',(html || this.options.html));
 	},
 	
 	_loadButtons : function() {	
@@ -237,40 +239,34 @@ var MercorModal = new Class({
 		return button;
 	},
 		
-	open: function(){
+	open: function(title, html){
 		this.node = $(this.options.id);
 		if(this.node) return;
 		this.overlay.show();
 		this._injectNode();
 		this._setupNode();
 		this._addEvents();
-		this._load();
+		this._load(title, html);
 		this.fireEvent('open');
 	},
 
 	close: function(){
-		if (this.fade)
-		{
+		if (this.fade){
 			this.fade.addEvent('onChainComplete',function(){
 		    	this.overlay.hide();
 				if(!this.node) return;
 				this.node.destroy();
+				this.container.destroy();
+				this.overlay.destroy();
 			}.bind(this));
 
-			if (this.options.fullScreen.active)
-			{
-				this._fadeOutFullScreen();
-			}
-			else
-			{
-				this._fadeOut();
-			}
+			(this.options.fullScreen.active)? this._fadeOutFullScreen():this._fadeOut();
 		}
 		this.fireEvent('close');
 	}
 });
 
-MercorModal.Iframe = new Class({
+MercorModal.Confirm = new Class({
 	
 	Extends: MercorModal,
 
@@ -309,13 +305,34 @@ MercorModal.Iframe = new Class({
 	Implements : [Events, Options],
 	
 	options:{
-		
+		'iframe': {
+			'styles': {
+		        width: '100%',
+		        height: '100%',
+		        border: '0px'
+			}
+	    }
 	},
 	
 	initialize: function(options){
-		// set the options
 		this.parent(options);
 	},
+	
+	_load: function(title, link){
+		this.header.set('html',(title || this.options.title));		
+		this.iframe = new IFrame({
+		    src: (link || 'http://mercor.julienrenaux.fr/library.html'),
+		    events: {
+		    	load: function() {
+		    		this.iframe.fade('in');
+		    		this.fireEvent('complete');
+		    	}.bind(this)
+		    }
+		});
+		this.iframe.fade('hide');
+		this.iframe.setStyles(this.options.iframe.styles);
+		this.iframe.inject(this.body);
+	}
 });
 
 MercorModal.Request = new Class({
