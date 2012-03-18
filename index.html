@@ -21,9 +21,6 @@
 				
 				$('modal-footer').addEvent('click',function(e){
 					var modal = new MercorModal;
-					modal.addButton('button','Close','', '', function(){
-						modal.close();
-					});
 					modal.open('This is my Mother Fucking Modal',
 							'<p>This me looooong text	</p>');
 					e.stop();
@@ -72,6 +69,21 @@
 						'draggable' : 0
 					});
 					modal.open('', '');
+					e.stop();
+				});
+				
+				$('modal-confirm').addEvent('click',function(e){
+					var button = this;
+					var modal = new MercorModal.Confirm({
+						'title': 'Confirm',
+						'html': 'Want to change the button color?',
+						'confirm':{
+							'callback': function(){
+								button.setStyle('background-color',['pink', 'red', 'green', 'purple'].getRandom());
+							}
+						}
+					});
+					modal.open();
 					e.stop();
 				});
 			});

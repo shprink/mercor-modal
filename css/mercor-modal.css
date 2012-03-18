@@ -95,7 +95,6 @@ SOFTWARE.
 
 #mercor-modal .mercor-body{
 	font-size: 13px;
-	background-color: white;
 	overflow: hidden;
 	display: block;
     position:absolute;
@@ -140,4 +139,16 @@ SOFTWARE.
 	
 	padding: 5px;
 	
+}
+
+#mercor-modal .spinner-msg {
+	text-align: center;
+	font-weight: bold;
+}
+
+#mercor-modal .spinner-img {
+	background: url(../img/spinner.gif) no-repeat;
+	width: 24px;
+	height: 24px;
+	margin: 0 auto;
 }

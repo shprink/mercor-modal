@@ -19,6 +19,17 @@ var MercorModal = new Class({
 				'background': '#000'
 			}
 		},
+		'spinner': {
+			'message': 'Loading, Please wait.',
+			'styles': {
+				'position': 'absolute',
+				'opacity': 0.9,
+				'filter': 'alpha(opacity = 90)',
+				'-ms-filter': 'progid:DXImageTransform.Microsoft.Alpha(Opacity=90)',
+				'z-index': 999,
+				'background': '#fff'
+			}
+		},
 		'footer': {
 			'style': {
 				'text-align': 'right'
@@ -68,10 +79,9 @@ var MercorModal = new Class({
 		+'</div>',
 		keys: {
 			esc: function() { this.close(); }
-		}
+		},
+		buttons : []
 	},
-	buttons : [],
-
 	initialize: function(options){
 		this.setOptions(options);
 		this._injectContainer();
@@ -97,6 +107,34 @@ var MercorModal = new Class({
 			id: this.options.overlay.id,
 			style: this.options.overlay.styles
 		});
+	},
+	
+	_injectNode: function(){
+		this.node = new Element('div',{
+			'id': this.options.id,
+			'html': this.options.template,
+			'styles' : this.options.styles
+		});
+		this.node.inject(this.container);	
+	},
+	
+	_injectSpinner: function(){
+		this.spinner = new Spinner(this.body, {
+			message: this.options.spinner.message,
+			style: this.options.spinner.styles
+		});
+	},
+	
+	_injectButtons : function() {
+		Array.each(this.options.buttons, function(button, index){
+			new Element( (button.element || 'button'), {
+				'html' :  (button.html || 'button'),
+				'styles': button.styles,
+				'events':{
+					'click': button.event.bind(this)
+				}
+			}).inject(this.footer);
+		}.bind(this));
 	},
 	
 	_drag: function(){
@@ -138,15 +176,6 @@ var MercorModal = new Class({
 			window.addEvent('resize',this.resizeEvent);
 		*/
 	},
-
-	_injectNode: function(){
-		this.node = new Element('div',{
-			'id': this.options.id,
-			'html': this.options.template,
-			'styles' : this.options.styles
-		});
-		this.node.inject(this.container);	
-	},
 	
 	_setupNode: function(){
 		this.buttonClose = this.node.getElement('.mercor-close');
@@ -156,9 +185,9 @@ var MercorModal = new Class({
 		this.footer.setStyles(this.footer.style);	
 		if (this.options.draggable) this._drag();
 
-		if (this.buttons.length > 0){
+		if (this.options.buttons.length > 0){
 			this.body.setStyle('margin-bottom', 46);
-			this._loadButtons();
+			this._injectButtons();
 		}
 		else{
 			this.footer.destroy();
@@ -214,29 +243,19 @@ var MercorModal = new Class({
 		});
 		this.fireEvent('fadeOut');
 	},
+	
+	_loadBefore: function(){
+		this.spinner.show();
+	},
 
 	_load: function(title, html){
 		this.header.set('html',(title || this.options.title));
 		this.body.set('html',(html || this.options.html));
+		this.fireEvent('complete');
 	},
 	
-	_loadButtons : function() {	
-		this.buttons.each(function(el) {
-			el.inject(this.footer);
-		}.bind(this));
-		return;
-	},
-
-	addButton : function(el, text, id, classe, clickEvent) {
-		var button = new Element(el, {
-			"html" : text,
-			"class" : classe,
-			"events" : {
-				click : clickEvent
-			}
-		});
-		this.buttons.push(button);
-		return button;
+	_loadAfter: function(){
+		this.spinner.hide();
 	},
 		
 	open: function(title, html){
@@ -245,6 +264,7 @@ var MercorModal = new Class({
 		this.overlay.show();
 		this._injectNode();
 		this._setupNode();
+		this._injectSpinner();
 		this._addEvents();
 		this._load(title, html);
 		this.fireEvent('open');
@@ -273,13 +293,22 @@ MercorModal.Confirm = new Class({
 	Implements : [Events, Options],
 	
 	options:{
-		
+		'styles': {
+			'width' : 230,
+			'height' : 120
+		},
+		'confirm':{
+			'callback': function(){alert('You clicked yes!');}
+		},
+		'title': 'Confirm',
+		'html': 'Are you sure?',
+		'buttons':[{ html: 'Yes', styles: {}, event: function() { this.options.confirm.callback(); this.close(); }},
+		           { html: 'No', styles: {}, event: function() { this.close(); }}]
 	},
 	
 	initialize: function(options){
-		// set the options
 		this.parent(options);
-	},
+	}
 });
 
 MercorModal.Image = new Class({
@@ -319,11 +348,13 @@ MercorModal.Iframe = new Class({
 	},
 	
 	_load: function(title, link){
-		this.header.set('html',(title || this.options.title));		
+		this._loadBefore();
+		this.header.set('html',(title || this.options.title));
 		this.iframe = new IFrame({
 		    src: (link || 'http://mercor.julienrenaux.fr/library.html'),
 		    events: {
 		    	load: function() {
+		    		this._loadAfter();
 		    		this.iframe.fade('in');
 		    		this.fireEvent('complete');
 		    	}.bind(this)
