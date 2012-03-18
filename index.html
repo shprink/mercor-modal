@@ -29,9 +29,8 @@
 				$('modal-fullscreen').addEvent('click',function(e){
 					var modal = new MercorModal({
 						'fullScreen': {
-							'active': 1
-						},
-						'draggable' : 0
+							'active': true
+						}
 					});
 					modal.open();
 					e.stop();
@@ -42,7 +41,7 @@
 							'width' : 400,
 							'height' : 200
 						},
-						'draggable' : 0,
+						'draggable' : false,
 						'overlay': {
 							'styles': {
 								'background': 'red'
@@ -54,7 +53,6 @@
 				});
 				$('modal-iframe').addEvent('click',function(e){
 					var modal = new MercorModal.Iframe({
-						'draggable' : 1,
 						//'onComplete': function(){alert('loaded')}
 					});
 					modal.open('', 'http://google.com');
@@ -64,9 +62,8 @@
 				$('modal-iframe-fullscreen').addEvent('click',function(e){
 					var modal = new MercorModal.Iframe({
 						'fullScreen': {
-							'active': 1
-						},
-						'draggable' : 0
+							'active': true
+						}
 					});
 					modal.open('', '');
 					e.stop();

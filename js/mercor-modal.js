@@ -31,7 +31,7 @@ var MercorModal = new Class({
 			}
 		},
 		'footer': {
-			'style': {
+			'styles': {
 				'text-align': 'right'
 			}
 		},
@@ -48,15 +48,23 @@ var MercorModal = new Class({
 			'opacity': 0
 		},
 		'fullScreen': {
-			'active': 0,
+			'active': false,
 			'styles': {
-			'width' : null,
-			'height' : null,
-			'bottom' : 5,
-			'left' : 5,
-			'right' : 5,
-			'top': 5,
-			'opacity': 0
+				'width' : null,
+				'height' : null,
+				'bottom' : 5,
+				'left' : 5,
+				'right' : 5,
+				'top': 5,
+				'opacity': 0
+			}
+		},
+		'keyboard': {
+			'active': true,
+			'type': 'keydown',
+			'keys': {
+				'esc': function() {this.close();}
+			}
 		},
 		onOpen: null,
 		onClose: null,
@@ -65,10 +73,9 @@ var MercorModal = new Class({
 		onRequest: null,
 		onFailure: null,
 		onSuccess: null,
-		onComplete: null
-		},
+		onComplete: null,
 		'trigger': null,
-		'draggable': 1,
+		'draggable': true,
 		'html' : 'Empty',
 		'title': 'Mercor Modal',
 		'template':	'<div class="mercor-inner">'
@@ -77,11 +84,9 @@ var MercorModal = new Class({
 			+'<div class="mercor-body"></div>'
 			+'<div class="mercor-footer"></div>'
 		+'</div>',
-		keys: {
-			esc: function() { this.close(); }
-		},
 		buttons : []
 	},
+
 	initialize: function(options){
 		this.setOptions(options);
 		this._injectContainer();
@@ -155,26 +160,27 @@ var MercorModal = new Class({
 			o.close();
 			event.stop();
 		});
+		
+		if (this.options.keyboard.active)
+		{
+			this.keyboard = new Keyboard({
+			    defaultEventType: this.options.keyboard.type
+			});
+			
+			Object.each(this.options.keyboard.keys, function(action, key){
+				this.keyboard.addEvent(key,action.bind(this));
+			}.bind(this));
+			
+			this.keyboard.activate();
+		}
 		/*
-		this.keyEvent = function(e){
-			if(this.options.keys[e.key]) this.options.keys[e.key].call(this);
-			}.bind(this);
-		this.node.addEvent('keyup',this.keyEvent);
-		
-		$('myLink').addEvent('keydown', function(event){
-    // the passed event parameter is already an instance of the Event type.
-    alert(event.key);   // returns the lowercase letter pressed.
-    alert(event.shift); // returns true if the key pressed is shift.
-    if (event.key == 's' && event.control) alert('Document saved.'); //executes if the user presses Ctr+S.
-});
-		
 		this.resizeEvent = this.options.constrain ? function(e) {
 			this._resize();
 			}.bind(this) : function() {
 			this._position();
 			}.bind(this);
 			window.addEvent('resize',this.resizeEvent);
-		*/
+			*/
 	},
 	
 	_setupNode: function(){
@@ -183,7 +189,7 @@ var MercorModal = new Class({
 		this.body = this.node.getElement('.mercor-body');
 		this.footer = this.node.getElement('.mercor-footer');
 		this.footer.setStyles(this.footer.style);	
-		if (this.options.draggable) this._drag();
+		if (this.options.draggable && !this.options.fullScreen.active) this._drag();
 
 		if (this.options.buttons.length > 0){
 			this.body.setStyle('margin-bottom', 46);
@@ -377,7 +383,6 @@ MercorModal.Request = new Class({
 	},
 	
 	initialize: function(options){
-		// set the options
 		this.parent(options);
 	},
 });
