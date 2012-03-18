@@ -126,8 +126,8 @@ SOFTWARE.
 	width: 16px;
 	height: 16px;
 	position: absolute;
-	top: 13px;
-	right: 13px;
+	top: 12px;
+	right: 12px;
 	background-image: url("../img/close.png"); /* http://www.gentleface.com */
 	opacity: 0.5;
 	cursor: pointer;
@@ -146,9 +146,17 @@ SOFTWARE.
 	font-weight: bold;
 }
 
-#mercor-modal .spinner-img {
-	background: url(../img/spinner.gif) no-repeat;
+#mercor-modal .spinner-img,
+#mercor-modal .error-img{
 	width: 24px;
 	height: 24px;
 	margin: 0 auto;
+}
+
+#mercor-modal .spinner-img {
+	background: url(../img/spinner.gif) no-repeat;
+}
+
+#mercor-modal .error-img {
+	background: url(../img/error.png) no-repeat;
 }

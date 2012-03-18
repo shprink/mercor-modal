@@ -77,6 +77,7 @@ var MercorModal = new Class({
 		'trigger': null,
 		'draggable': true,
 		'html' : 'Empty',
+		'htmlError' : 'Oups, something wrong happened...',
 		'title': 'Mercor Modal',
 		'template':	'<div class="mercor-inner">'
 			+'<div class="mercor-close" title="Close"></div>'
@@ -128,6 +129,8 @@ var MercorModal = new Class({
 			message: this.options.spinner.message,
 			style: this.options.spinner.styles
 		});
+		this.spinnerImage = this.spinner.getElement('.spinner-img');
+		this.spinnerMessage = this.spinner.getElement('.spinner-msg');
 	},
 	
 	_injectButtons : function() {
@@ -149,6 +152,14 @@ var MercorModal = new Class({
 		this.header.setStyle('cursor','move');
 	},
 	
+	_failure: function(){
+		if (!this.spinner.isDisplayed()){
+			this.spinner.show();
+		}
+		this.spinnerImage.setClass('.error-img');
+		this.spinnerMessage.set('html', this.options.htmlError);
+	},
+	
 	_addEvents: function()
 	{
 		var o = this;
@@ -161,16 +172,13 @@ var MercorModal = new Class({
 			event.stop();
 		});
 		
-		if (this.options.keyboard.active)
-		{
+		if (this.options.keyboard.active){
 			this.keyboard = new Keyboard({
 			    defaultEventType: this.options.keyboard.type
 			});
-			
 			Object.each(this.options.keyboard.keys, function(action, key){
 				this.keyboard.addEvent(key,action.bind(this));
 			}.bind(this));
-			
 			this.keyboard.activate();
 		}
 		/*
@@ -379,12 +387,71 @@ MercorModal.Request = new Class({
 	Implements : [Events, Options],
 	
 	options:{
-		
+		'request': {
+			'type': 'html',
+			'url': '',
+			'method': 'get',
+			'asynch': true,
+			'data': ''
+	    }
 	},
 	
 	initialize: function(options){
 		this.parent(options);
 	},
+	
+	_load: function(title, url) {	
+		var requestOptions = {
+			url : (url || this.options.request.url),
+			data : this.options.request.data,
+			async : this.options.request.async,
+			method : this.options.request.method,
+			onRequest: function(){
+				this._loadBefore();
+				this.fireEvent('request');
+			}.bind(this),
+			onSuccess: function(responseText){
+				this.body.set('text', responseText);
+				this.fireEvent('success');
+			}.bind(this),
+			onFailure : function() {
+				this._failure();
+				this.fireEvent('failure');
+			}.bind(this),
+			onComplete : function(responseText) {
+				this._loadAfter();
+				this.fireEvent('complete');
+			}.bind(this)
+		};
+		
+		switch (options.type) {
+		case 'html':
+			var requestOptionsHTML = {
+				update : container
+			};
+			// Request HTML
+			this.request = new Request.HTML(Object.merge(requestOptions,requestOptionsHTML));
+		break;
+		
+		case 'json':
+			var requestOptionsJSON = {};
+			// Request JSON
+			this.request = new Request.JSON(Object.merge(requestOptions,requestOptionsJSON));
+		break;
+
+		default:
+			var requestOptionsDefault = {
+				onSuccess : function(responseText) {
+					var content = options.onComplete(responseText);
+					content.inject(container);
+				}
+			};
+			// Request
+			this.request = new Request(Object.merge(requestOptions,requestOptionsDefault));
+		break;
+		}
+		this.request.send();
+	}
 });
 
 MercorModal.HTML = new Class({
