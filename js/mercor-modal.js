@@ -20,7 +20,8 @@ var MercorModal = new Class({
 			}
 		},
 		'spinner': {
-			'message': 'Loading, Please wait.',
+			'classes': 'mercor-spinner',
+			'message': 'Loading, please wait.',
 			'styles': {
 				'position': 'absolute',
 				'opacity': 0.9,
@@ -30,9 +31,12 @@ var MercorModal = new Class({
 				'background': '#fff'
 			}
 		},
+		'content': {
+			'styles': {}
+		},
 		'footer': {
 			'styles': {
-				'text-align': 'right'
+				'text-align': 'left'
 			}
 		},
 		'fade': {
@@ -77,7 +81,7 @@ var MercorModal = new Class({
 		'trigger': null,
 		'draggable': true,
 		'html' : 'Empty',
-		'htmlError' : 'Oups, something wrong happened...',
+		'htmlError' : 'Something wrong happened.',
 		'title': 'Mercor Modal',
 		'template':	'<div class="mercor-inner">'
 			+'<div class="mercor-close" title="Close"></div>'
@@ -126,11 +130,15 @@ var MercorModal = new Class({
 	
 	_injectSpinner: function(){
 		this.spinner = new Spinner(this.body, {
+			'class': this.options.spinner.classes,
 			message: this.options.spinner.message,
-			style: this.options.spinner.styles
+			style: this.options.spinner.styles,
+			fxOptions:{
+				duration: 500
+			}
 		});
-		this.spinnerImage = this.spinner.getElement('.spinner-img');
-		this.spinnerMessage = this.spinner.getElement('.spinner-msg');
+		this.spinnerImage = this.node.getElement('.spinner-img');
+		this.spinnerMessage = this.node.getElement('.spinner-msg');
 	},
 	
 	_injectButtons : function() {
@@ -153,10 +161,8 @@ var MercorModal = new Class({
 	},
 	
 	_failure: function(){
-		if (!this.spinner.isDisplayed()){
-			this.spinner.show();
-		}
-		this.spinnerImage.setClass('.error-img');
+		this.spinner.show();
+		this.spinnerImage.set('class','error-img');
 		this.spinnerMessage.set('html', this.options.htmlError);
 	},
 	
@@ -196,7 +202,10 @@ var MercorModal = new Class({
 		this.header = this.node.getElement('.mercor-header');
 		this.body = this.node.getElement('.mercor-body');
 		this.footer = this.node.getElement('.mercor-footer');
-		this.footer.setStyles(this.footer.style);	
+		this.content = new Element('div', {
+			'styles': this.options.content.styles
+		});
+		this.footer.setStyles(this.options.footer.styles);	
 		if (this.options.draggable && !this.options.fullScreen.active) this._drag();
 
 		if (this.options.buttons.length > 0){
@@ -243,10 +252,11 @@ var MercorModal = new Class({
 		this.fireEvent('fadeIn');
 	},
 	
-	_fadeOut: function(){	
+	_fadeOut: function(){
+		var position = this.node.getPosition();
 		this.fade.start({
 		    'opacity': [1,0],
-		    'top': [this.top, this.top + 50]
+		    'top': [position.y, position.y + 50]
 		});
 		this.fireEvent('fadeOut');
 	},
@@ -258,18 +268,24 @@ var MercorModal = new Class({
 		this.fireEvent('fadeOut');
 	},
 	
-	_loadBefore: function(){
+	_loadStart: function(){
+		this.content.fade('hide');
 		this.spinner.show();
 	},
 
 	_load: function(title, html){
 		this.header.set('html',(title || this.options.title));
-		this.body.set('html',(html || this.options.html));
+		this.content.set('html',(html || this.options.html));
+		this.content.inject(this.body);
 		this.fireEvent('complete');
 	},
 	
-	_loadAfter: function(){
+	_loadStop: function(){
 		this.spinner.hide();
+		var fade = function(){
+			this.content.fade('in');
+		}.bind(this);
+		fade.delay(500);
 	},
 		
 	open: function(title, html){
@@ -362,13 +378,13 @@ MercorModal.Iframe = new Class({
 	},
 	
 	_load: function(title, link){
-		this._loadBefore();
+		this._loadStart();
 		this.header.set('html',(title || this.options.title));
 		this.iframe = new IFrame({
 		    src: (link || 'http://mercor.julienrenaux.fr/library.html'),
 		    events: {
 		    	load: function() {
-		    		this._loadAfter();
+		    		this._loadStop();
 		    		this.iframe.fade('in');
 		    		this.fireEvent('complete');
 		    	}.bind(this)
@@ -388,11 +404,12 @@ MercorModal.Request = new Class({
 	
 	options:{
 		'request': {
-			'type': 'html',
+			'type': null,
 			'url': '',
 			'method': 'get',
 			'asynch': true,
-			'data': ''
+			'data': '',
+			'success': function(responseText, body){body.set('text', responseText);}
 	    }
 	},
 	
@@ -400,72 +417,47 @@ MercorModal.Request = new Class({
 		this.parent(options);
 	},
 	
-	_load: function(title, url) {	
+	_load: function(title, url) {
+		this.header.set('html',(title || this.options.title));
 		var requestOptions = {
 			url : (url || this.options.request.url),
 			data : this.options.request.data,
 			async : this.options.request.async,
 			method : this.options.request.method,
 			onRequest: function(){
-				this._loadBefore();
+				this._loadStart();
 				this.fireEvent('request');
 			}.bind(this),
 			onSuccess: function(responseText){
-				this.body.set('text', responseText);
+				this.options.request.success(responseText).inject(this.content);
 				this.fireEvent('success');
 			}.bind(this),
-			onFailure : function() {
+			onFailure: function() {
 				this._failure();
 				this.fireEvent('failure');
 			}.bind(this),
-			onComplete : function(responseText) {
-				this._loadAfter();
+			onComplete: function() {
+				this.content.inject(this.body);
+				this._loadStop();
 				this.fireEvent('complete');
 			}.bind(this)
 		};
-		
-		switch (options.type) {
+		switch (this.options.request.type) {
 		case 'html':
 			var requestOptionsHTML = {
-				update : container
+				update : this.content,
+				onSuccess: function(responseTree, responseElements, responseHTML, responseJavaScript){
+					this.fireEvent('success');
+				}.bind(this),
 			};
-			// Request HTML
 			this.request = new Request.HTML(Object.merge(requestOptions,requestOptionsHTML));
-		break;
-		
-		case 'json':
-			var requestOptionsJSON = {};
-			// Request JSON
-			this.request = new Request.JSON(Object.merge(requestOptions,requestOptionsJSON));
 		break;
 
 		default:
-			var requestOptionsDefault = {
-				onSuccess : function(responseText) {
-					var content = options.onComplete(responseText);
-					content.inject(container);
-				}
-			};
-			// Request
-			this.request = new Request(Object.merge(requestOptions,requestOptionsDefault));
+			this.request = new Request(requestOptions);
 		break;
 		}
 		this.request.send();
-	}
-});
-
-MercorModal.HTML = new Class({
-	
-	Extends: MercorModal,
-
-	Implements : [Events, Options],
-	
-	options:{
-		
 	},
-	
-	initialize: function(options){
-		// set the options
-		this.parent(options);
-	},
+
 });

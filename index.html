@@ -20,7 +20,9 @@
 				});
 				
 				$('modal-footer').addEvent('click',function(e){
-					var modal = new MercorModal;
+					var modal = new MercorModal({
+						'buttons':[{ html: 'Close', styles: {}, event: function() { this.close(); }}]
+					});
 					modal.open('This is my Mother Fucking Modal',
 							'<p>This me looooong text	</p>');
 					e.stop();
@@ -83,6 +85,43 @@
 					modal.open();
 					e.stop();
 				});
+				
+				$('modal-request').addEvent('click',function(e){
+					var button = this;
+					var modal = new MercorModal.Request({
+						'title': 'HTML Request',
+						'request':{
+							'url': 'demo/data.json',
+							
+							'success': function(responseText){
+								var  items = JSON.decode(responseText), ol = new Element('ol');
+								Array.each(items, function(item, offset) {
+									var li = new Element('li',{
+										html: '<h1>' + item.title + '</h1><br/><span>' + item.desc + '</span>'
+									});
+									li.inject(ol);
+								}.bind(this));
+								return ol;
+							}
+					
+						}
+					});
+					modal.open();
+					e.stop();
+				});
+				
+				$('modal-request-html').addEvent('click',function(e){
+					var button = this;
+					var modal = new MercorModal.Request({
+						'title': 'HTML Request',
+						'request':{
+							'type': 'html',
+							'url': 'demo/data.html'
+						}
+					});
+					modal.open();
+					e.stop();
+				});
 			});
 			
 			
@@ -117,6 +156,7 @@ tbody tr:nth-child(odd) td{
 <button id="modal-iframe-fullscreen" href="#" class="btn ">Iframe FullScreen</button>
 <button id="modal-confirm" href="#" class="btn ">Confirm</button>
 <button id="modal-request" href="#" class="btn ">Request</button>
+<button id="modal-request-html" href="#" class="btn ">Request HTML</button>
 <button id="modal-image" href="#" class="btn ">Image</button>
 <button id="modal-slideshow" href="#" class="btn ">Slideshow</button>
 	<div class="container">
