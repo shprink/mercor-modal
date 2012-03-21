@@ -78,6 +78,7 @@ var MercorModal = new Class({
 		onFailure: null,
 		onSuccess: null,
 		onComplete: null,
+		'type':'', // can be iframe,confirm,request,requestHTML or null
 		'trigger': null,
 		'draggable': true,
 		'html' : 'Empty',
@@ -97,10 +98,6 @@ var MercorModal = new Class({
 		this._injectContainer();
 		this._injectOverlay();
 		this.screen = document.body.getSize();
-		if (this.options.trigger){
-			var style = JSON.decode(this.options.trigger.get('modal-style'));
-		}
-		this.options.styles = (style && typeOf(style) == 'object')? Object.merge(this.options.styles, style):this.options.styles;
 		this.top = (this.screen.y - this.options.styles.height) / 2;
 		this.left = (this.screen.x - this.options.styles.width) / 2;
 	},
@@ -187,6 +184,7 @@ var MercorModal = new Class({
 			}.bind(this));
 			this.keyboard.activate();
 		}
+		//TODO handle resize event
 		/*
 		this.resizeEvent = this.options.constrain ? function(e) {
 			this._resize();
@@ -208,6 +206,7 @@ var MercorModal = new Class({
 		this.footer.setStyles(this.options.footer.styles);	
 		if (this.options.draggable && !this.options.fullScreen.active) this._drag();
 
+		// TODO Find another way to handle footer
 		if (this.options.buttons.length > 0){
 			this.body.setStyle('margin-bottom', 46);
 			this._injectButtons();
@@ -227,44 +226,37 @@ var MercorModal = new Class({
 		
 		if (this.options.fullScreen.active){
 			this.node.setStyles(this.options.fullScreen.styles);
-			this._fadeInFullScreen();
 		}
 		else{
-			this.node.setStyles({
-				left : this.left
-			});
-			this._fadeIn();
+			this.node.setStyles({left : this.left});
 		}
+		this._fadeIn();
 	},
 	
-	_fadeIn: function(){	
-		this.fade.start({
-		    'opacity': [0, 1],
-		    'top': [this.top -50, this.top]
-		});
-		this.fireEvent('fadeIn');
-	},
-	
-	_fadeInFullScreen: function(){	
-		this.fade.start({
-		    'opacity': [0, 1]
-		});
+	_fadeIn: function(){
+		if (this.options.fullScreen.active){
+			this.fade.start({'opacity': [0, 1]});
+		}
+		else {
+			this.fade.start({
+			    'opacity': [0, 1],
+			    'top': [this.top -50, this.top]
+			});
+		}
 		this.fireEvent('fadeIn');
 	},
 	
 	_fadeOut: function(){
 		var position = this.node.getPosition();
-		this.fade.start({
-		    'opacity': [1,0],
-		    'top': [position.y, position.y + 50]
-		});
-		this.fireEvent('fadeOut');
-	},
-
-	_fadeOutFullScreen: function(){	
-		this.fade.start({
-		    'opacity': [1,0]
-		});
+		if (this.options.fullScreen.active){
+			this.fade.start({'opacity': [1,0]});
+		}
+		else{
+			this.fade.start({
+			    'opacity': [1,0],
+			    'top': [position.y, position.y + 50]
+			});
+		}
 		this.fireEvent('fadeOut');
 	},
 	
@@ -273,9 +265,9 @@ var MercorModal = new Class({
 		this.spinner.show();
 	},
 
-	_load: function(title, html){
-		this.header.set('html',(title || this.options.title));
-		this.content.set('html',(html || this.options.html));
+	_load: function(){
+		this.header.set('html',this.options.title);
+		this.content.set('html',this.options.html);
 		this.content.inject(this.body);
 		this.fireEvent('complete');
 	},
@@ -288,7 +280,7 @@ var MercorModal = new Class({
 		fade.delay(500);
 	},
 		
-	open: function(title, html){
+	open: function(){
 		this.node = $(this.options.id);
 		if(this.node) return;
 		this.overlay.show();
@@ -296,7 +288,7 @@ var MercorModal = new Class({
 		this._setupNode();
 		this._injectSpinner();
 		this._addEvents();
-		this._load(title, html);
+		this._load();
 		this.fireEvent('open');
 	},
 
@@ -309,8 +301,7 @@ var MercorModal = new Class({
 				this.container.destroy();
 				this.overlay.destroy();
 			}.bind(this));
-
-			(this.options.fullScreen.active)? this._fadeOutFullScreen():this._fadeOut();
+			this._fadeOut();
 		}
 		this.fireEvent('close');
 	}
@@ -365,6 +356,7 @@ MercorModal.Iframe = new Class({
 	
 	options:{
 		'iframe': {
+			'link': 'http://mercor.julienrenaux.fr/library.html',
 			'styles': {
 		        width: '100%',
 		        height: '100%',
@@ -377,11 +369,9 @@ MercorModal.Iframe = new Class({
 		this.parent(options);
 	},
 	
-	_load: function(title, link){
-		this._loadStart();
-		this.header.set('html',(title || this.options.title));
-		this.iframe = new IFrame({
-		    src: (link || 'http://mercor.julienrenaux.fr/library.html'),
+	_setupNode: function(){
+		this.parent();
+		this.content = new IFrame({
 		    events: {
 		    	load: function() {
 		    		this._loadStop();
@@ -390,9 +380,14 @@ MercorModal.Iframe = new Class({
 		    	}.bind(this)
 		    }
 		});
-		this.iframe.fade('hide');
-		this.iframe.setStyles(this.options.iframe.styles);
-		this.iframe.inject(this.body);
+	},
+	
+	_load: function(){
+		this._loadStart();
+		this.header.set('html',this.options.title);
+		this.content.set('src',this.options.iframe.link);
+		this.content.setStyles(this.options.iframe.styles);
+		this.content.inject(this.body);
 	}
 });
 
@@ -417,10 +412,10 @@ MercorModal.Request = new Class({
 		this.parent(options);
 	},
 	
-	_load: function(title, url) {
-		this.header.set('html',(title || this.options.title));
+	_load: function() {
+		this.header.set('html',this.options.title);
 		var requestOptions = {
-			url : (url || this.options.request.url),
+			url : this.options.request.url,
 			data : this.options.request.data,
 			async : this.options.request.async,
 			method : this.options.request.method,
@@ -460,4 +455,32 @@ MercorModal.Request = new Class({
 		this.request.send();
 	},
 
+});
+window.addEvent('domready',function(){
+	$$('[mercor-modal-options]').each(function(button){
+		var options = JSON.decode(button.get('mercor-modal-options'));
+		button.removeProperty('mercor-modal-options');
+		button.addEvent('click',function(e){
+			switch (options.type) {
+				case 'iframe':
+					var modal = new MercorModal.Iframe(options);
+					break;
+				case 'confirm':
+					var modal = new MercorModal.Confirm(options);
+					break;
+				case 'request':
+					var modal = new MercorModal.Request(options);
+					break;
+				case 'requestHTML':
+					var requestType = {'request':{'type':'html'}};
+					var modal = new MercorModal.Request(Object.merge(options, requestType));
+					break;
+				default:
+					var modal = new MercorModal(options);
+				break;
+			}
+			modal.open();
+			e.stop();
+		});
+	});
 });

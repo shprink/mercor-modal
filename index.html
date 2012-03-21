@@ -21,43 +21,25 @@
 				
 				$('modal-footer').addEvent('click',function(e){
 					var modal = new MercorModal({
-						'buttons':[{ html: 'Close', styles: {}, event: function() { this.close(); }}]
-					});
-					modal.open('This is my Mother Fucking Modal',
-							'<p>This me looooong text	</p>');
-					e.stop();
-				});
-				
-				$('modal-fullscreen').addEvent('click',function(e){
-					var modal = new MercorModal({
-						'fullScreen': {
-							'active': true
-						}
-					});
-					modal.open();
-					e.stop();
-				});
-				$('modal-tiny').addEvent('click',function(e){
-					var modal = new MercorModal({
 						'styles': {
 							'width' : 400,
 							'height' : 200
 						},
-						'draggable' : false,
-						'overlay': {
-							'styles': {
-								'background': 'red'
-							}
-						},
+						'title': 'My Modal with footer',
+						'html': '<p>My HTML content</p>',
+						'buttons':[{ html: 'Close', styles: {}, event: function() { this.close(); }}]
 					});
 					modal.open();
 					e.stop();
 				});
+				
 				$('modal-iframe').addEvent('click',function(e){
 					var modal = new MercorModal.Iframe({
-						//'onComplete': function(){alert('loaded')}
+						'iframe':{
+							'link':'http://google.com'
+						}
 					});
-					modal.open('', 'http://google.com');
+					modal.open();
 					e.stop();
 				});
 				
@@ -65,7 +47,17 @@
 					var modal = new MercorModal.Iframe({
 						'fullScreen': {
 							'active': true
-						}
+						},
+						'iframe':{
+							'link':'http://google.com'
+						},
+						'overlay': {
+							'styles': {
+								'background': 'red'
+							}
+						},
+						'buttons':[{ html: 'Close', styles: {}, event: function() { this.close(); }},
+						           { html: 'Do not click me', styles: {}, event: function() { alert('I told you not to!'); }}]
 					});
 					modal.open('', '');
 					e.stop();
@@ -89,7 +81,7 @@
 				$('modal-request').addEvent('click',function(e){
 					var button = this;
 					var modal = new MercorModal.Request({
-						'title': 'HTML Request',
+						'title': 'Request',
 						'request':{
 							'url': 'demo/data.json',
 							
@@ -134,7 +126,16 @@ body {
 .container{
 	margin-left: auto;
     margin-right: auto;
-    width: 940px;
+    width: 950px;
+}
+.half{
+	float: left;
+	margin-right: 10px;
+	width: 470px;
+}
+
+.end{
+	margin-right: 0px;
 }
 table         { margin: 10px; width:100%;}
 thead th      { background: #333; color:#fff; font-weight: bold;}
@@ -147,58 +148,198 @@ tbody tr:nth-child(odd) td{
 </style>
 </head>
 <body>
-<button id="modal" modal-style="{'width' : 200,'height' : 200}" href="#" class="btn">Style define in link</button>
-<button id="modal-footer" href="#" class="btn ">Footer with buttons</button>
-<button id="modal-fullscreen" href="#" class="btn ">FullScreen</button>
-<button id="modal-tiny" href="#" class="btn ">Tiny</button>
-<br/><br/>
-<button id="modal-iframe" href="#" class="btn ">Iframe</button>
-<button id="modal-iframe-fullscreen" href="#" class="btn ">Iframe FullScreen</button>
-<button id="modal-confirm" href="#" class="btn ">Confirm</button>
-<button id="modal-request" href="#" class="btn ">Request</button>
-<button id="modal-request-html" href="#" class="btn ">Request HTML</button>
-<button id="modal-image" href="#" class="btn ">Image</button>
-<button id="modal-slideshow" href="#" class="btn ">Slideshow</button>
 	<div class="container">
 		<section id="description">
 		<div class="page-header">
 			<h1>
-				Alert <small>Provides hints to users!</small>
+				Modal <small>interact with your users</small>
 			</h1>
 		</div>
 		<p>
-			Alert is a <a href="http://mootools.net/" target="_blank">Mootools</a>
-			based Class that allows you to display different type of alerts to
-			users.
+			Modal is a <a href="http://mootools.net/" target="_blank">Mootools</a>
+			based Class that allows you to interact with users trought a child window.
 		</p>
-		<p>This Class is highly customizable. Change, the size, the
-			position, the style and even the template of you alerts.</p>
-		<p>All the options are detailed beside.</p>
 		<p>
-			<a target="_blank" href="https://github.com/shprink/mercor-alert" class="btn btn-primary btn-large">Fork me on GitHub</a>
-			<a href="https://github.com/shprink/mercor-alert/zipball/master" class="btn btn-large">Download</a>
+			<a target="_blank" href="https://github.com/shprink/mercor-modal" class="btn btn-primary btn-large">Fork me on GitHub</a>
+			<a href="https://github.com/shprink/mercor-modal/zipball/master" class="btn btn-large">Download</a>
+		</p>
+		<h2>Features</h2>
+		<h3>Draggable</h3>
+		<p>
+			The modal is on top of an important information? Not a problem Mercor Modal is Draggable by default :)
+		</p>
+		<h3>FullScreen</h3>
+		<p>
+			Mercor Modal allow you to create Full Screen Modals. Whatever the size of your screen, the modal will fit.
+		</p>
+		<h3>Customizable</h3>
+		<p>
+			Mercor Modal is entirely customizable (All the options and Methods are listed in the Documentation section below). Possibilities are almost infinite.
+		</p>
+		<h3>Event Oriented</h3>
+		<p>
+			Select between all those events: onOpen, onClose, onFadeIn, onFadeOut, onRequest, onFailure, onSuccess and onComplete
 		</p>
 		</section>
-		<section id="alert">
+		<section id="demo">
 		<h2>Demos</h2>
-		<h3>
-			Success
-			<button href="#" class="btn alertSuccess">Demo</button>
-		</h3>
-		<div>
-			<pre><code>$$('.alertSuccess').addEvent('click',function(e){
-	var alert = new MercorAlert;
-	alert.open({
-		'title': 'Praesent bibendum',
-		'text': 'Lorem ipsum dolor sit amet, consectetur elit...',
-		'type': 'success' // notice, error, success
+		<div class="half">
+			<h3>
+				load HTML (With buttons)
+				<button id="modal-footer" href="#" class="btn ">Demo</button>
+			</h3>
+			<pre><code>$('modal-footer').addEvent('click',function(e){
+	var modal = new MercorModal({
+		'styles': {
+			'width' : 400,
+			'height' : 200
+		},
+		'title': 'My Modal with footer',
+		'html': '&lt;p&gt;My HTML content&lt;/p&gt;',
+		'buttons':[{ html: 'Close', styles: {}, 
+		event: function() { this.close(); }}]
 	});
+	modal.open();
+	e.stop();
+});</code>
+			</pre>
+		</div>
+		<div class="half end">
+		<h3>
+			No need to know JavaScript!
+			<button id="modal" mercor-modal-options="{'styles': {'width' : 200,'height' : 200}}" href="#" class="btn">Demo</button>
+		</h3>
+			<p>Define your option in the 'mercor-modal-options' parameter to create your Modal.</p>
+			<p>Worried about the way your source code look? No worries the 'mercor-modal-options' parameter is destroy after use.</p>
+			<p>Load any kind of content using the 'type' option: It can be: iframe,confirm,request,requestHTML or null</p>
+			<pre><code>&lt;button id=&quot;modal&quot; mercor-modal-options=&quot;{&#039;styles&#039;: {&#039;width&#039; : 200,&#039;height&#039; : 200}}&quot; 
+href=&quot;#&quot; class=&quot;btn&quot;&gt;Style define in link&lt;/button&gt;
+</code>
+			</pre>
+		</div>
+		<div style="clear:both;"></div>
+		<div class="half">
+			<h3>
+				Open an Iframe!
+				<button id="modal-iframe" href="#" class="btn ">Demo</button>
+			</h3>
+			<pre><code>$('modal-iframe').addEvent('click',function(e){
+	var modal = new MercorModal.Iframe({
+		'iframe':{
+			'link':'http://google.com'
+		}
+	});
+	modal.open();
+	e.stop();
+});</code>
+			</pre>
+		</div>
+		<div class="half end">
+		<h3>
+			Open a Confirm box!
+			<button id="modal-confirm" href="#" class="btn ">Demo</button>
+			
+		</h3>
+		<pre><code>$('modal-confirm').addEvent('click',function(e){
+var button = this;
+var modal = new MercorModal.Confirm({
+	'title': 'Confirm',
+	'html': 'Do you want to change the button color?',
+	'confirm':{
+		'callback': function(){
+			button.setStyle('background-color',
+			['pink', 'red', 'green', 'purple'].getRandom());
+		}
+	}
+});
+modal.open();
+e.stop();
+});</code>
+			</pre>
+		</div>
+		<div style="clear:both;"></div>
+		<div class="half">
+		<h3>
+			Ajax HTML Request!
+			<button id="modal-request-html" href="#" class="btn ">Demo</button>
+		</h3>
+		<a target="_blank" href="demo/data.html">Open the data source used for this exemple</a>
+			<pre><code>$('modal-request-html').addEvent('click',function(e){
+	var button = this;
+	var modal = new MercorModal.Request({
+		'title': 'HTML Request',
+		'request':{
+			'type': 'html',
+			'url': 'demo/data.html'
+		}
+	});
+	modal.open();
+	e.stop();
+});</code>
+			</pre>
+		</div>
+		<div class="half end">
+		<h3>
+			Ajax Request!
+			<button id="modal-request" href="#" class="btn ">Demo</button>
+		</h3>
+		<a target="_blank" href="demo/data.json">Open the data source used for this exemple</a>
+			<pre><code>$('modal-request').addEvent('click',function(e){
+	var button = this;
+	var modal = new MercorModal.Request({
+		'title': 'Request',
+		'request':{
+			'url': 'demo/data.json',
+			'success': function(responseText){
+				var  items = JSON.decode(responseText), ol = new Element('ol');
+				Array.each(items, function(item, offset) {
+					var li = new Element('li',{
+						html: '&lt;h1&gt;' + item.title 
+						+ '&lt;/h1&gt;&lt;br/&gt;&lt;span&gt;' 
+						+ item.desc + '&lt;/span&gt;'
+					});
+					li.inject(ol);
+				}.bind(this));
+				return ol;
+			}
+		}
+	});
+	modal.open();
+	e.stop();
+});</code>
+			</pre>
+		</div>
+		<div style="clear:both;"></div>
+		<div>
+		<h3>
+			Mix em, create a UNIQUE Modal !
+			<button id="modal-iframe-fullscreen" href="#" class="btn ">demo</button>			
+		</h3>
+		<p>Let's create a FuulScreen Iframe Modal that contains random buttons over a red Overlay!</p>
+			<pre><code>$('modal-iframe-fullscreen').addEvent('click',function(e){
+	var modal = new MercorModal.Iframe({
+		'fullScreen': {
+			'active': true
+		},
+		'iframe':{
+			'link':'http://google.com'
+		},
+		'overlay': {
+			'styles': {
+				'background': 'red'
+			}
+		},
+		'buttons':[{ html: 'Close', styles: {}, event: function() { this.close(); }},
+		           { html: 'Do not click me', styles: {}, event: function() { alert('I told you not to!'); }}]
+	});
+	modal.open('', '');
 	e.stop();
 });</code>
 			</pre>
 		</div>
 		</section>
-		<section id="demo">
+		<section id="documentation">
+		<h2>Documentation (In construction)</h2>
 		<h3>
 			Method: Constructor
 			<code>var alert = new MercorAlert([options]);</code>
