@@ -427,7 +427,7 @@ MercorModal.Request = new Class({
 				update : this.content,
 				onSuccess: function(responseTree, responseElements, responseHTML, responseJavaScript){
 					this.fireEvent('success');
-				}.bind(this),
+				}.bind(this)
 			};
 			this.request = new Request.HTML(Object.merge(requestOptions,requestOptionsHTML));
 		break;
@@ -437,7 +437,7 @@ MercorModal.Request = new Class({
 		break;
 		}
 		this.request.send();
-	},
+	}
 
 });
 window.addEvent('domready',function(){
