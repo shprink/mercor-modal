@@ -332,22 +332,6 @@ MercorModal.Confirm = new Class({
 	}
 });
 
-MercorModal.Image = new Class({
-	
-	Extends: MercorModal,
-
-	Implements : [Events, Options],
-	
-	options:{
-		
-	},
-	
-	initialize: function(options){
-		// set the options
-		this.parent(options);
-	},
-});
-
 MercorModal.Iframe = new Class({
 	
 	Extends: MercorModal,
