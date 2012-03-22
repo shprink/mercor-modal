@@ -375,7 +375,7 @@ MercorModal.Iframe = new Class({
 		    events: {
 		    	load: function() {
 		    		this._loadStop();
-		    		this.iframe.fade('in');
+		    		this.content.fade('in');
 		    		this.fireEvent('complete');
 		    	}.bind(this)
 		    }
