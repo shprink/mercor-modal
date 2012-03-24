@@ -79,7 +79,6 @@ var MercorModal = new Class({
 		onSuccess: null,
 		onComplete: null,
 		'type':'', // can be iframe,confirm,request,requestHTML or null
-		'trigger': null,
 		'draggable': true,
 		'html' : 'Empty',
 		'htmlError' : 'Something wrong happened.',
