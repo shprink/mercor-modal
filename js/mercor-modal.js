@@ -456,9 +456,9 @@ MercorModal.Request = new Class({
 
 });
 window.addEvent('domready',function(){
-	$$('[mercor-modal-options]').each(function(button){
-		var options = JSON.decode(button.get('mercor-modal-options'));
-		button.removeProperty('mercor-modal-options');
+	$$('[mercor-modal]').each(function(button){
+		var options = JSON.decode(button.get('mercor-modal'));
+		button.removeProperty('mercor-modal');
 		button.addEvent('click',function(e){
 			switch (options.type) {
 				case 'iframe':
