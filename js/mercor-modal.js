@@ -331,22 +331,6 @@ MercorModal.Confirm = new Class({
 	}
 });
 
-MercorModal.Image = new Class({
-	
-	Extends: MercorModal,
-
-	Implements : [Events, Options],
-	
-	options:{
-		
-	},
-	
-	initialize: function(options){
-		// set the options
-		this.parent(options);
-	},
-});
-
 MercorModal.Iframe = new Class({
 	
 	Extends: MercorModal,
@@ -374,7 +358,7 @@ MercorModal.Iframe = new Class({
 		    events: {
 		    	load: function() {
 		    		this._loadStop();
-		    		this.iframe.fade('in');
+		    		this.content.fade('in');
 		    		this.fireEvent('complete');
 		    	}.bind(this)
 		    }
@@ -442,7 +426,7 @@ MercorModal.Request = new Class({
 				update : this.content,
 				onSuccess: function(responseTree, responseElements, responseHTML, responseJavaScript){
 					this.fireEvent('success');
-				}.bind(this),
+				}.bind(this)
 			};
 			this.request = new Request.HTML(Object.merge(requestOptions,requestOptionsHTML));
 		break;
@@ -452,7 +436,7 @@ MercorModal.Request = new Class({
 		break;
 		}
 		this.request.send();
-	},
+	}
 
 });
 window.addEvent('domready',function(){
