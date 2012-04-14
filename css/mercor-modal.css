@@ -89,7 +89,8 @@ SOFTWARE.
     height: 20px;
 }
 
-#mercor-modal .mercor-body{
+#mercor-modal .mercor-body,
+#mercor-modal-custom .mercor-body{
 	font-size: 13px;
 	overflow: hidden;
 	display: block;
@@ -102,7 +103,8 @@ SOFTWARE.
     margin:40px 5px 5px 5px;
 }
 
-#mercor-modal .mercor-body p{
+#mercor-modal .mercor-body p,
+#mercor-modal-custom .mercor-body p{
 	margin-top: 0; 
 }	
 
@@ -110,15 +112,25 @@ SOFTWARE.
 	padding: 5px;
 	border-top: 1px solid #CCC;
 	margin-top: 5px;
-	height: 30px;
-	display: block;
-	position:absolute;
-	bottom:0;
 	 left:5px;
     right:5px;
 }
 
-#mercor-modal .mercor-close{
+#mercor-modal .mercor-footer,
+#mercor-modal-custom .mercor-footer{
+	height: 30px;
+	display: block;
+	position:absolute;
+	bottom:0;
+}
+
+#mercor-modal-custom .mercor-footer{
+	left:0px;
+    right:0px;
+}
+
+#mercor-modal .mercor-close,
+#mercor-modal-custom .mercor-close{
 	width: 16px;
 	height: 16px;
 	position: absolute;
@@ -128,31 +140,36 @@ SOFTWARE.
 	opacity: 0.5;
 	cursor: pointer;
 }
-#mercor-modal .mercor-close:hover{
+#mercor-modal .mercor-close:hover,
+#mercor-modal-custom .mercor-close:hover{
 	opacity: 1;
 }
-#mercor-modal .mercor-inner{
-	
-	padding: 5px;
-	
+#mercor-modal .mercor-inner,
+#mercor-modal-custom .mercor-inner{
+	padding: 5px;	
 }
 
-#mercor-modal .spinner-msg {
+#mercor-modal .spinner-msg,
+#mercor-modal-custom .spinner-msg{
 	text-align: center;
 	font-weight: bold;
 }
 
 #mercor-modal .spinner-img,
-#mercor-modal .error-img{
+#mercor-modal .error-img,.error-img,
+#mercor-modal-custom .spinner-img, 
+#mercor-modal-custom .error-img{
 	width: 24px;
 	height: 24px;
 	margin: 0 auto;
 }
 
-#mercor-modal .spinner-img {
+#mercor-modal .spinner-img,
+#mercor-modal-custom .spinner-img{
 	background: url(../img/spinner.gif) no-repeat;
 }
 
-#mercor-modal .error-img {
+#mercor-modal .error-img,
+#mercor-modal-custom .error-img{
 	background: url(../img/error.png) no-repeat;
 }
