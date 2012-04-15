@@ -38,24 +38,18 @@ SOFTWARE.
 
 @CHARSET "UTF-8";
 
-#mercor-modal-container{
-	font-family: Arial,Verdana,sans-serif;
-}
-
 #mercor-modal{
-	position:relative;
-	margin:0 auto;
+	font-family: Arial,Verdana,sans-serif;
 	border: 1px solid #FFF;
 	background-color: white;
 	color:#000;
-	display:block;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 	-moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    	background: rgb(255,255,255); /* Old browsers */
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: rgb(255,255,255); /* Old browsers */
 	background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(229,229,229,1) 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(229,229,229,1))); /* Chrome,Safari4+ */
 	background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(229,229,229,1) 100%); /* Chrome10+,Safari5.1+ */
@@ -86,47 +80,20 @@ SOFTWARE.
     line-height: 1.25;
     text-transform: capitalize;
     font-weight: bold;
-    height: 20px;
 }
 
-#mercor-modal .mercor-body,
-#mercor-modal-custom .mercor-body{
+#mercor-modal .mercor-inner{
+	padding: 5px;	
+}
+
+#mercor-modal .mercor-body{
 	font-size: 13px;
-	overflow: hidden;
-	display: block;
-    position:absolute;
-    height:auto;
-    bottom:0;
-    top:0;
-    left:0;
-    right:0;
-    margin:40px 5px 5px 5px;
-}
-
-#mercor-modal .mercor-body p,
-#mercor-modal-custom .mercor-body p{
-	margin-top: 0; 
 }	
 
 #mercor-modal .mercor-footer{
 	padding: 5px;
 	border-top: 1px solid #CCC;
 	margin-top: 5px;
-	 left:5px;
-    right:5px;
-}
-
-#mercor-modal .mercor-footer,
-#mercor-modal-custom .mercor-footer{
-	height: 30px;
-	display: block;
-	position:absolute;
-	bottom:0;
-}
-
-#mercor-modal-custom .mercor-footer{
-	left:0px;
-    right:0px;
 }
 
 #mercor-modal .mercor-close,
@@ -143,10 +110,6 @@ SOFTWARE.
 #mercor-modal .mercor-close:hover,
 #mercor-modal-custom .mercor-close:hover{
 	opacity: 1;
-}
-#mercor-modal .mercor-inner,
-#mercor-modal-custom .mercor-inner{
-	padding: 5px;	
 }
 
 #mercor-modal .spinner-msg,

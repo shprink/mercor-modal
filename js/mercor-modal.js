@@ -73,37 +73,61 @@ var MercorModal = new Class({
 				'background': '#fff'
 			}
 		},
+		'node': {
+			'id': 'mercor-modal',
+			'classes': '',
+			'styles': {
+				'width' : 800,
+				'height' : 500,
+				'z-index' : 1000,
+				'position' : 'fixed',
+				'opacity': 0
+			}
+		},
 		'header': {
-			'height': 40,
 			'styles': {}
+		},
+		'body': {
+			'styles': {
+				'margin-top': 40,
+				'margin-right': 5,
+				'margin-bottom': 5,
+				'margin-left': 5,
+				'overflow': 'hidden',
+				'display': 'block',
+			    'position': 'absolute',
+			    'height': 'auto',
+			    'bottom': 0,
+			    'top': 0,
+			    'left': 0,
+			    'right': 0
+			}
 		},
 		'content': {
 			'styles': {}
 		},
 		'footer': {
-			'height': 46,
+			'heightWithButtons': 46,
 			'styles': {
-				'text-align': 'left'
+				'height': 30,
+				'text-align': 'left',
+				'left': 5,
+		    	'right': 5,
+		    	'bottom': 0,
+		    	'position': 'absolute'
 			}
 		},
 		'fade': {
 			'duration': 'short',
 		    'transition': 'linear'
 		},
-		'id': 'mercor-modal',
-		'classes': '',
-		'styles': {
-			'width' : 800,
-			'height' : 500,
-			'z-index' : 1000,
-			'position' : 'fixed',
-			'opacity': 0
-		},
 		'fullScreen': {
 			'active': false,
 			'styles': {
-				'width' : null,
-				'height' : null,
+				'width' : 'auto',
+				'height' : 'auto',
+				'max-width' : 'none',
+				'max-height' : 'none',
 				'bottom' : 5,
 				'left' : 5,
 				'right' : 5,
@@ -118,6 +142,38 @@ var MercorModal = new Class({
 				'esc': function() {this.close();}
 			}
 		},
+		'bootstrap': {
+			'active': false,
+			'title': '<h3>Mercor Modal</h3>',
+			'node': {
+				'id': 'mercor-modal-custom',
+				'classes': 'modal',
+				'styles': {
+					'margin' : 0
+				}
+			},
+			'template':'<div class="close mercor-close" title="Close"></div>'
+				+'<div class="modal-header mercor-header"></div>'
+				+'<div class="modal-body mercor-body"></div>'
+				+'<div class="modal-footer mercor-footer"></div>',
+			'footer': {
+				'heightWithButtons': 61,
+				'styles': {
+					'height': 30,
+					'left': 0,
+			    	'right': 0
+				}
+			},
+			'body': {
+				'styles': {
+					'margin-top': 46,
+					'margin-bottom': 1,
+					'margin-right': 1,
+					'margin-left': 1,
+					'padding':15
+				}
+			},
+		},
 		onOpen: null,
 		onClose: null,
 		onFadeIn: null,
@@ -126,7 +182,7 @@ var MercorModal = new Class({
 		onFailure: null,
 		onSuccess: null,
 		onComplete: null,
-		'type':'', // can be iframe,confirm,request,requestHTML or null
+		'type': null, // can be iframe,confirm,request,requestHTML or null
 		'draggable': true,
 		'html' : 'Empty',
 		'htmlError' : 'Something wrong happened.',
@@ -142,11 +198,13 @@ var MercorModal = new Class({
 
 	initialize: function(options){
 		this.setOptions(options);
+		// bootstrap support
+		if (this.options.bootstrap.active) Object.merge(this.options, this.options.bootstrap);
 		this._injectContainer();
 		this._injectOverlay();
 		this.screen = document.body.getSize();
-		this.top = (this.screen.y - this.options.styles.height) / 2;
-		this.left = (this.screen.x - this.options.styles.width) / 2;
+		this.top = (this.screen.y - this.options.node.styles.height) / 2;
+		this.left = (this.screen.x - this.options.node.styles.width) / 2;
 	},
 
 	_injectContainer: function(){
@@ -165,10 +223,10 @@ var MercorModal = new Class({
 	
 	_injectNode: function(){
 		this.node = new Element('div',{
-			'id': this.options.id,
-			'class': this.options.classes,
+			'id': this.options.node.id,
+			'class': this.options.node.classes,
 			'html': this.options.template,
-			'styles' : this.options.styles
+			'styles' : this.options.node.styles
 		});
 		this.node.inject(this.container);	
 	},
@@ -252,18 +310,18 @@ var MercorModal = new Class({
 		this.content = new Element('div', {
 			'styles': this.options.content.styles
 		});
+		this.header.setStyles(this.options.header.styles);
+		this.body.setStyles(this.options.body.styles);
 		this.footer.setStyles(this.options.footer.styles);	
 		if (this.options.draggable && !this.options.fullScreen.active) this._drag();
-		this.body.setStyle('margin-top', this.options.header.height);
+		
 		// TODO Find another way to handle footer
 		if (this.options.buttons.length > 0){
-			this.body.setStyle('margin-bottom', this.options.footer.height);
+			this.body.setStyle('margin-bottom', this.options.footer.heightWithButtons);
 			this._injectButtons();
 		}
 		else{
 			this.footer.destroy();
-			
-			this.body.setStyle('margin-bottom', 5);
 		}
 		this.fade = new Fx.Morph(this.node, {
 			duration: this.options.fade.duration,
@@ -331,7 +389,7 @@ var MercorModal = new Class({
 	},
 		
 	open: function(){
-		this.node = $(this.options.id);
+		this.node = $(this.options.node.id);
 		if(this.node) return;
 		this.overlay.show();
 		this._injectNode();
@@ -364,9 +422,11 @@ MercorModal.Confirm = new Class({
 	Implements : [Events, Options],
 	
 	options:{
-		'styles': {
-			'width' : 230,
-			'height' : 120
+		'node': {
+			'styles': {
+				'width' : 230,
+				'height' : 120
+			}
 		},
 		'confirm':{
 			'callback': function(){alert('You clicked yes!');}
@@ -390,7 +450,7 @@ MercorModal.Iframe = new Class({
 	
 	options:{
 		'iframe': {
-			'link': 'http://mercor.julienrenaux.fr/library.html',
+			'url': 'http://mercor.julienrenaux.fr/library.html',
 			'styles': {
 		        width: '100%',
 		        height: '100%',
@@ -419,7 +479,7 @@ MercorModal.Iframe = new Class({
 	_load: function(){
 		this._loadStart();
 		this.header.set('html',this.options.title);
-		this.content.set('src',this.options.iframe.link);
+		this.content.set('src',this.options.iframe.url);
 		this.content.setStyles(this.options.iframe.styles);
 		this.content.inject(this.body);
 	}
@@ -490,7 +550,6 @@ MercorModal.Request = new Class({
 	}
 
 });
-
 window.addEvent('domready',function(){
 	$$('[mercor-modal]').each(function(button){
 		var options = JSON.decode(button.get('mercor-modal'));
